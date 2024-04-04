@@ -3,17 +3,16 @@
 #include "utils.h"
 #include "sprite.h"
 
-enum MTLD_MODE
-{
-    MTLD_MODE_565,
-    MTLD_MODE_8888
-};
+typedef void (*MTLDLineDrawHandler)(unsigned char *data, unsigned short int pixelsInLine, unsigned short int lineNumber);
 
 struct MTLDContext
 {
     union MTLDSprite *bufferDraw;
 
     union MTLDSprite *bufferBack;
+
+    MTLDLineDrawHandler beforeLineDraw;
+    MTLDLineDrawHandler afterLineDraw;
 
     unsigned short int maxSprites;
     unsigned short int drawSprite;
@@ -26,19 +25,19 @@ EXPORT void mtldInitDoubleBuffer(struct MTLDContext *context, unsigned char *mem
 EXPORT void mtldInitSingleBuffer(struct MTLDContext *context, unsigned char *memBuffer, int sizeInBytes);
 EXPORT char mtldIsUsingDoubleBuffer(struct MTLDContext *context);
 EXPORT char mtldIsUsingSingleBuffer(struct MTLDContext *context);
+EXPORT void mtldSetBeforeLineDrawFunction(struct MTLDContext *context, MTLDLineDrawHandler handler);
+EXPORT void mtldSetAfterLineDrawFunction(struct MTLDContext *context, MTLDLineDrawHandler handler);
 EXPORT void mtldPrepareNewFrame(struct MTLDContext *context);
-EXPORT int mtldCalcLineBufferSize(enum MTLD_MODE mode, int pixelsInLine);
-EXPORT void mtldDrawFromDrawBuffer(struct MTLDContext *context, enum MTLD_MODE mode, short int lineNumber, short int lineSize, unsigned char *outBuffer);
-EXPORT void mtldDrawFromBackBuffer(struct MTLDContext *context, enum MTLD_MODE mode, short int lineNumber, short int lineSize, unsigned char *outBuffer);
-EXPORT void mtldDrawFromBuffer(struct MTLDContext *context, enum MTLD_MODE mode, union MTLDSprite *buffer, int spritesAmount, short int lineNumber, short int lineSize, unsigned char *outBuffer);
+EXPORT void mtldDrawFromDrawBuffer(struct MTLDContext *context, short int lineNumber, short int lineSize, unsigned char *outBuffer);
+EXPORT void mtldDrawFromBackBuffer(struct MTLDContext *context, short int lineNumber, short int lineSize, unsigned char *outBuffer);
+EXPORT void mtldDrawFromBuffer(struct MTLDContext *context, union MTLDSprite *buffer, int spritesAmount, short int lineNumber, short int lineSize, unsigned char *outBuffer);
 
-EXPORT inline void mtldDrawSpritePallete(union MTLDSprite *sprite, short int lineNumber, unsigned short int *outBuffer);
-EXPORT inline void mtldDrawSpriteBitMaskColor(union MTLDSprite *sprite, short int lineNumber, unsigned short int *outBuffer);
 
 EXPORT void mtldAddSpritePallete(
     struct MTLDContext *context,
-    const unsigned char *pallete,
+    const unsigned short int *pallete,
     const unsigned char *data,
+    char colorsPerByte,
     short int bytesPerWidth,
     short int bytesPerLine,
     unsigned short int lines,

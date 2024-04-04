@@ -1,5 +1,13 @@
 #ifndef SPRITE_H
 #define SPRITE_H
+#include "utils.h"
+
+enum MTLDSpriteFlags
+{
+    MTLDSpriteMirrorH = 1,
+    MTLDSpriteMirrorV = 2,
+    MTLDSpriteDoubleSize = 4
+};
 
 enum MTLDSpriteType
 {
@@ -25,12 +33,15 @@ struct MTLDSpritePallete
 {
     struct MTLDSpriteBase shared;
 
-    const unsigned char *pallette;
+    const unsigned short int *pallette;
 
     const unsigned char *data;
 
     unsigned short int bytesPerWidth;
     unsigned short int lines;
+
+    char colorsPerByte;
+    char n1, n2, n3;
 };
 
 struct MTLDSpriteBitMaskColor
@@ -51,5 +62,8 @@ union MTLDSprite
     struct MTLDSpritePallete spritePallete;
     struct MTLDSpriteBitMaskColor spriteBitMaskColor;
 };
+
+EXPORT inline void mtldDrawSpritePallete(union MTLDSprite *sprite, short int lineNumber, unsigned short int *outBuffer);
+EXPORT inline void mtldDrawSpriteBitMaskColor(union MTLDSprite *sprite, short int lineNumber, unsigned short int *outBuffer);
 
 #endif
